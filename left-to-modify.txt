@@ -1,0 +1,5 @@
+1. mm/memory.c (not easy to do)
+2. mm/zone.c 
+3. mm/nobootmem.c
+4. mm/page_alloc.c
+5. nothing left
