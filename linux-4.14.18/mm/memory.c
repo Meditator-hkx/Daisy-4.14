@@ -70,6 +70,7 @@
 #include <linux/userfaultfd_k.h>
 #include <linux/dax.h>
 #include <linux/oom.h>
+#include <linux/scm.h> // kaixin
 
 #include <asm/io.h>
 #include <asm/mmu_context.h>
@@ -3166,6 +3167,8 @@ static int __do_fault(struct vm_fault *vmf)
 {
 	struct vm_area_struct *vma = vmf->vma;
 	int ret;
+    
+    // kaixin: bugs probable here...vma struct is changed and then daisy codes should be changed correspondingly
 
 	ret = vma->vm_ops->fault(vmf);
 	if (unlikely(ret & (VM_FAULT_ERROR | VM_FAULT_NOPAGE | VM_FAULT_RETRY |
