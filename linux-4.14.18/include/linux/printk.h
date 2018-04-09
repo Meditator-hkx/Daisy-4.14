@@ -138,6 +138,11 @@ struct va_format {
 	} while (0);					\
 	0;						\
 })
+// kaixin: Daisy-4.14 needed
+#ifdef CONFIG_SCM
+asmlinkage __printf(1, 2) __cold
+int daisy_printk(const char *fmt, ...);
+#endif
 
 #ifdef CONFIG_EARLY_PRINTK
 extern asmlinkage __printf(1, 2)
