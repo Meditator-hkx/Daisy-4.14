@@ -12,13 +12,13 @@
 #include <sys/mman.h>
 #include <linux/unistd.h>
 
-#define __NR_p_mmap 322
-#define __NR_p_search_big_region_node 323
-#define __NR_p_alloc_and_insert 324
-#define __NR_p_get_small_region 325
-#define __NR_p_bind             326
-#define __NR_p_search_small_region_node 327
-#define __NR_p_delete_big_region_node 328
+#define __NR_p_mmap 341
+#define __NR_p_search_big_region_node 342
+#define __NR_p_alloc_and_insert 343
+#define __NR_p_get_small_region 344
+#define __NR_p_bind             345
+#define __NR_p_search_small_region_node 346
+#define __NR_p_delete_big_region_node 347
 
 #define PCM_MAGIC 0x5A5AA5A5
 #define BITMAPGRAN 8    /* n means 1 bit to n byte */

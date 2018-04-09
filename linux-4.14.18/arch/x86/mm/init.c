@@ -4,6 +4,7 @@
 #include <linux/swap.h>
 #include <linux/memblock.h>
 #include <linux/bootmem.h>	/* for max_low_pfn */
+#include <linux/scm.h>     /* kaixin: Daisy-4.14 needed */
 
 #include <asm/set_memory.h>
 #include <asm/e820/api.h>
@@ -89,6 +90,8 @@ __ref void *alloc_low_pages(unsigned int num)
 	unsigned long pfn;
 	int i;
 
+    daisy_printk("%s %s\n",__FILE__, __func__);
+
 	if (after_bootmem) {
 		unsigned int order;
 
@@ -104,6 +107,7 @@ __ref void *alloc_low_pages(unsigned int num)
 		ret = memblock_find_in_range(min_pfn_mapped << PAGE_SHIFT,
 					max_pfn_mapped << PAGE_SHIFT,
 					PAGE_SIZE * num , PAGE_SIZE);
+        daisy_printk("ret: %lu\n", ret);
 		if (!ret)
 			panic("alloc_low_pages: can not alloc memory");
 		memblock_reserve(ret, PAGE_SIZE * num);
@@ -438,6 +442,7 @@ static void add_pfn_range_mapped(unsigned long start_pfn, unsigned long end_pfn)
 	if (start_pfn < (1UL<<(32-PAGE_SHIFT)))
 		max_low_pfn_mapped = max(max_low_pfn_mapped,
 					 min(end_pfn, 1UL<<(32-PAGE_SHIFT)));
+    daisy_printk("%s %s max_pfn_mapped %lu\n", __FILE__, __func__, max_pfn_mapped);
 }
 
 bool pfn_range_is_mapped(unsigned long start_pfn, unsigned long end_pfn)
@@ -845,9 +850,13 @@ void __init memblock_find_dma_reserve(void)
 #endif
 }
 
+// kaixin: Daisy-4.14 needed
 void __init zone_sizes_init(void)
 {
 	unsigned long max_zone_pfns[MAX_NR_ZONES];
+
+    daisy_printk("%s %s\n",__FILE__, __func__);
+    daisy_printk("%lu %lu %lu\n", max_low_pfn, max_pfn, SCM_PFN_NUM);
 
 	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
 
@@ -857,10 +866,21 @@ void __init zone_sizes_init(void)
 #ifdef CONFIG_ZONE_DMA32
 	max_zone_pfns[ZONE_DMA32]	= min(MAX_DMA32_PFN, max_low_pfn);
 #endif
-	max_zone_pfns[ZONE_NORMAL]	= max_low_pfn;
+	// max_zone_pfns[ZONE_NORMAL]	= max_low_pfn;
+	max_zone_pfns[ZONE_NORMAL]	= max(max_low_pfn-SCM_PFN_NUM, MAX_DMA32_PFN);
 #ifdef CONFIG_HIGHMEM
 	max_zone_pfns[ZONE_HIGHMEM]	= max_pfn;
 #endif
+
+
+#ifdef CONFIG_SCM
+    max_zone_pfns[ZONE_SCM] = max_low_pfn;
+#endif
+
+	/*print max_zone_pfns*/
+	for(i=0; i<MAX_NR_ZONES; ++i) {
+		daisy_printk("max_zone_pfns %d: %lu\n", i, max_zone_pfns[i]);
+	}
 
 	free_area_init_nodes(max_zone_pfns);
 }
