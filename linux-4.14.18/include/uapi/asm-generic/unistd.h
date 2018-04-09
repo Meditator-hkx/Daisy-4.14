@@ -733,6 +733,22 @@ __SYSCALL(__NR_pkey_free,     sys_pkey_free)
 #define __NR_statx 291
 __SYSCALL(__NR_statx,     sys_statx)
 
+/*kaixin: Daisy-4.14 needed. PCM system calls are defined here*/
+#define __NR_p_mmap 341
+__SYSCALL(__NR_p_mmap, sys_p_mmap)
+#define __NR_p_search_big_region_node 342
+__SYSCALL(__NR_p_search_big_region_node, sys_p_search_big_region_node)
+#define __NR_p_alloc_and_insert 343
+__SYSCALL(__NR_p_alloc_and_insert, sys_p_alloc_and_insert)
+#define __NR_p_get_small_region 344
+__SYSCALL(__NR_p_get_small_region, sys_p_get_small_region)
+#define __NR_p_bind 345
+__SYSCALL(__NR_p_bind, sys_p_bind)
+#define __NR_p_search_small_region_node 346
+__SYSCALL(__NR_p_search_small_region_node, sys_p_search_small_region_node)
+#define __NR_p_search_small_region_node 347
+__SYSCALL(__NR_p_delete_big_region_node, sys_p_delete_big_region_node)
+
 #undef __NR_syscalls
 #define __NR_syscalls 292
 

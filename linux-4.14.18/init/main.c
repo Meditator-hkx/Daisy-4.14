@@ -89,6 +89,7 @@
 #include <linux/io.h>
 #include <linux/cache.h>
 #include <linux/rodata_test.h>
+#include <linux/scm.h> // kaixin: Daisy-4.14 needed
 
 #include <asm/io.h>
 #include <asm/bugs.h>
@@ -533,6 +534,10 @@ asmlinkage __visible void __init start_kernel(void)
 	page_address_init();
 	pr_notice("%s", linux_banner);
 	setup_arch(&command_line);
+    /* kaixin: Daisy-4.14 needed
+     * boot scm ptable (root build)
+     */ 
+	scm_ptable_boot();
 	/*
 	 * Set up the the initial canary and entropy after arch
 	 * and after adding latent and command line entropy.
@@ -572,6 +577,10 @@ asmlinkage __visible void __init start_kernel(void)
 	sort_main_extable();
 	trap_init();
 	mm_init();
+
+	/* After mm_init we can use kmalloc and we can never use memblock*/
+	print_all_pgdat();
+	scm_freelist_boot();
 
 	ftrace_init();
 
