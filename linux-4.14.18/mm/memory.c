@@ -3169,8 +3169,31 @@ static int __do_fault(struct vm_fault *vmf)
 	int ret;
     
     // kaixin: bugs probable here...vma struct is changed and then daisy codes should be changed correspondingly
+    /*
+    * find the page when VM_PCM is set in vma->vm_flags
+    */
+	if (vma->vm_flags & VM_PCM) {
+		daisy_printk("===== scm_id in vma = %d\n", vma->scm_id);
+		struct ptable_node *p_node = search_big_region_node(vma->scm_id);
+		if (!p_node)
+			p_node = search_small_region_node(vma->scm_id);
+		if (!p_node)
+			p_node = search_heap_region_node(vma->scm_id);
+		if (!p_node) {
+			daisy_printk("===== fatal error: p_node is null");
+			ret=VM_FAULT_NOPAGE;
+		}
 
-	ret = vma->vm_ops->fault(vmf);
+		vmf.page = (pfn_to_page(p_node->phys_addr >> PAGE_SHIFT)+pgoff);
+		daisy_printk("allocated page: pfn %p offset=%d\n",
+				PFN_PHYS(page_to_pfn(vmf.page)),pgoff);
+		atomic_set(&vmf.page->_mapcount,0);
+		ret=0;
+	} else {
+		ret = vma->vm_ops->fault(vmf);
+	}
+
+	// ret = vma->vm_ops->fault(vmf);
 	if (unlikely(ret & (VM_FAULT_ERROR | VM_FAULT_NOPAGE | VM_FAULT_RETRY |
 			    VM_FAULT_DONE_COW)))
 		return ret;
@@ -4067,6 +4090,10 @@ int handle_mm_fault(struct vm_area_struct *vma, unsigned long address,
 	 */
 	if (flags & FAULT_FLAG_USER)
 		mem_cgroup_oom_enable();
+
+    // kaixin
+	if(vma->vm_flags & VM_PCM)
+		printk("PCM!!!!!!!\n");
 
 	if (unlikely(is_vm_hugetlb_page(vma)))
 		ret = hugetlb_fault(vma->vm_mm, vma, address, flags);
